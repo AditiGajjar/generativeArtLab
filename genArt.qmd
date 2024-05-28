@@ -12,6 +12,7 @@ embed-resources: true
 library(ggplot2)
 library(tibble)
 library(viridis)
+library(dplyr)
 ```
 
 ```{r}
@@ -24,6 +25,7 @@ sample_data <- function(seed = NULL, n = 100){
     y1 = y0 + runif(n, min = -.2, max = .2),
     shade = runif(n), 
     size = runif(n),
+    alpha = runif(n),
     shape = factor(sample(0:22, size = n, replace = TRUE))
   )
 }
@@ -37,13 +39,86 @@ sample_canva <- function(seed = NULL) {
 
 ```
 
-**Description:** Feel free to be overly dramatic with this, if you want to - it doesn't need to involve any true art theory.
+```{r}
+polar_styled_plot <- function(data = NULL, palette) {
+  ggplot(
+    data = data,
+    mapping = aes(
+      x = x0,
+      y = y0,
+      xend = x1,
+      yend = y1,
+      colour = shade,
+      size = size,
+      alpha = alpha,
+      fill = shade
+    )) + 
+    coord_polar(clip = "off") +
+    scale_y_continuous(
+      expand = c(0, 0),
+      limits = c(0, 1), 
+      oob = scales::oob_keep
+    ) +
+    scale_x_continuous(
+      expand = c(0, 0), 
+      limits = c(0, 1), 
+      oob = scales::oob_keep
+    ) + 
+    scale_colour_gradientn(colours = palette) + 
+    scale_size(range = c(0, 10)) + 
+    theme_void() + 
+    guides(
+      colour = guide_none(),
+      size = guide_none(),
+      fill = guide_none(),
+      shape = guide_none()
+    )
+}
+```
+
+```{r, warning=FALSE}
+dat <- sample_data(n = 3040, seed = 223)
+dat2 <- sample_data(n = 75, seed = 223) |>  
+  mutate(y0 = 1.2 + y0 * 1.1, y1 = .2)
+pal <- sample_canva(seed = 22)
+
+polar_styled_plot(data = dat, palette = pal) + 
+  geom_point(show.legend = FALSE) +
+  geom_segment(
+    data = dat2 |> mutate(size = size / 12, alpha = alpha / 2), 
+    lineend = "round", 
+    colour = "white",
+    show.legend = FALSE
+  ) +
+  geom_segment(
+    data = dat2 |> mutate(size = size / 100), 
+    lineend = "round", 
+    colour = "darkorchid4",
+    show.legend = FALSE
+  ) +
+  geom_point(
+    data = dat2 |> mutate(size = size* 0.8),
+    colour = "hotpink",
+    show.legend = FALSE,
+    pch = 8
+    
+  )
+```
+
+**Description:** Inspired by limited Spring flavor of GTK Kombucha: Bloom, this art showcases the feeling of taking a sip of the
 
 **Code Choices:**
 
--   A description of the code choices and how they influenced the appearance of the piece.  For example, you might say, "By setting the number of recursions to 100, we repeat the pattern 100 times in the space of the image."
+-   I began with Danielle's original code to produce polar coordinate plots. It is takes a palette and if specified, a data set as inputs, and sets up the mappings and the stylistic aspects to the plot. This made it easier to play around with different plots and effectively build on top of one another.
 
 ## Title Art 2 - c**ompletely generative**
+
+```{r}
+library(voronoise)
+```
+
+```{r}
+```
 
 **Description:** Feel free to be overly dramatic with this, if you want to - it doesn't need to involve any true art theory.
 
