@@ -3,25 +3,50 @@ title: "Generative Art"
 author: "Aditi Gajjar"
 format: html
 editor: visual
+embed-resources: true
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+## Title Art 1 - ordinary plotting functions
 
 ```{r}
-1 + 1
+library(ggplot2)
+library(tibble)
+library(viridis)
 ```
-
-You can add options to executable code like this
 
 ```{r}
-#| echo: false
-2 * 2
+sample_data <- function(seed = NULL, n = 100){
+  if(!is.null(seed)) set.seed(seed)
+  dat <- tibble(
+    x0 = runif(n),
+    y0 = runif(n),
+    x1 = x0 + runif(n, min = -.2, max = .2),
+    y1 = y0 + runif(n, min = -.2, max = .2),
+    shade = runif(n), 
+    size = runif(n),
+    shape = factor(sample(0:22, size = n, replace = TRUE))
+  )
+}
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+sample_canva <- function(seed = NULL) {
+  if(!is.null(seed)) set.seed(seed)
+  sample(ggthemes::canva_palettes, 1)[[1]]
+}
+
+```
+
+**Description:** Feel free to be overly dramatic with this, if you want to - it doesn't need to involve any true art theory.
+
+**Code Choices:**
+
+-   A description of the code choices and how they influenced the appearance of the piece.  For example, you might say, "By setting the number of recursions to 100, we repeat the pattern 100 times in the space of the image."
+
+## Title Art 2 - c**ompletely generative**
+
+**Description:** Feel free to be overly dramatic with this, if you want to - it doesn't need to involve any true art theory.
+
+**Code Choices:**
+
+-   A description of the code choices and how they influenced the appearance of the piece.  For example, you might say, "By setting the number of recursions to 100, we repeat the pattern 100 times in the space of the image."
