@@ -6,13 +6,15 @@ editor: visual
 embed-resources: true
 ---
 
-## Title Art 1 - ordinary plotting functions
+## Bloom - ordinary plotting functions
 
 ```{r}
 library(ggplot2)
 library(tibble)
 library(viridis)
 library(dplyr)
+library(purrr)
+library(ambient)
 ```
 
 ```{r}
@@ -74,6 +76,7 @@ polar_styled_plot <- function(data = NULL, palette) {
       shape = guide_none()
     )
 }
+
 ```
 
 ```{r, warning=FALSE}
@@ -105,11 +108,13 @@ polar_styled_plot(data = dat, palette = pal) +
   )
 ```
 
-**Description:** Inspired by limited Spring flavor of GTK Kombucha: Bloom, this art showcases the feeling of taking a sip of the
+**Description:** Inspired by limited Spring flavor of GT Kombucha: Bloom, this art showcases the feeling I get every time this year when this flavor is released for the short period of time. I believe it lives up to its name, making me feel one with the flowers, and nothing short of whimsical. The artwork above, titled Bloom, encompasses that.
 
 **Code Choices:**
 
 -   I began with Danielle's original code to produce polar coordinate plots. It is takes a palette and if specified, a data set as inputs, and sets up the mappings and the stylistic aspects to the plot. This made it easier to play around with different plots and effectively build on top of one another.
+-   The first thing I changed was adding an alpha value, that would change the transparency of the points and other elements. I let that be determined randomly as well, to make it easier to add dimension without having to specify too much.
+-   Then, I uncreased the number of points, and added the lines and stars by mutating the second data set such that the points would lie outside my polarized point graph. The `pch` argument for `geom_point` allowed me to change the points to stars at the end of the
 
 ## Title Art 2 - c**ompletely generative**
 
@@ -118,9 +123,106 @@ library(voronoise)
 ```
 
 ```{r}
+set.seed(45)
+dat <- tibble(
+  x = runif(500),
+  y = runif(500),
+  val = runif(500)
+)
+pic <- ggplot(dat, aes(x, y, fill = val)) +
+  theme_void() + 
+  coord_equal(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) + 
+  scale_fill_gradientn(colours = palette) + 
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  geom_voronoi_tile(colour = "gray31", size = .2, show.legend = FALSE) +
+  geom_point(aes(colour = val), size = runif(500, 2, 6), alpha = 0.6) + 
+  geom_segment(aes(x = x, xend = x + rnorm(500, 0, 0.1), y = y, yend = y + rnorm(500, 0, 0.1)), alpha = 0.3, color = "pink3")
+
+# Display the plot
+pic
 ```
 
-**Description:** Feel free to be overly dramatic with this, if you want to - it doesn't need to involve any true art theory.
+```{r}
+unboxy <- function(iterations, layers) {
+  
+  coeffs <- array(
+    data = runif(978 * layers, min = -1, max = 1), 
+    dim = c(3, 3, layers)
+  )
+  
+  point0 <- matrix(
+    data = runif(3, min = -1, max = 1), 
+    nrow = 1,
+    ncol = 3
+  )
+  
+  funs <- list(
+    function(point) point + (sum(point ^ 2)) ^ (1/3),
+    function(point) sin(point),
+    function(point) 2 * sin(point)
+  )
+  
+  update <- function(point, t) {
+    l <- sample(layers, 1)
+    f <- sample(funs, 1)[[1]]
+    z <- point[3]
+    point[3] <- 1
+    point <- f(point %*% coeffs[,,l])
+    point[3] <- (point[3] + z)/2
+    return(point)
+  }
+  
+  points <- accumulate(1:iterations, update, .init = point0)
+  points <- matrix(unlist(points), ncol = 3, byrow = TRUE)
+  points <- as_tibble(as.data.frame(points)) 
+  names(points) <- c("x", "y", "val")
+  return(points)
+}
+
+sample_canva2 <- function(seed = NULL, n = 4) {
+  if(!is.null(seed)) set.seed(seed)
+  sample(ggthemes::canva_palettes, 1)[[1]] |>
+    (\(x) colorRampPalette(x)(n))()  
+}
+```
+
+```{r}
+
+set.seed(22)
+dat <- unboxy(iterations = 1000, layers = 5) 
+```
+
+```{r}
+noise <- long_grid(
+  seq(-2.5, 2.5, length.out = 500),
+  seq(-2.5, 2.5, length.out = 500)
+) %>%
+  mutate(noise = gen_simplex(x, y))
+
+noise_df <- as.data.frame(noise)
+
+
+pic <- ggplot(dat, aes(x, y, fill = val)) +
+  theme_void() + 
+  coord_equal(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) + 
+  scale_fill_gradientn(colours = sample_canva2(91)) + 
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0))
+
+# Add voronoi tiles and noise texture
+final_plot <- pic +
+  geom_voronoi_tile(
+    colour = "hotpink4",
+    size = .2, 
+    show.legend = FALSE
+  ) +
+  geom_raster(data = noise_df, aes(x, y, fill = noise), alpha = 0.7, inherit.aes = FALSE) +
+  scale_fill_gradient(low = "maroon4", high = "lightpink", guide = "none")
+final_plot
+```
+
+**Description:** This is what I would assume that a Barbie Birkin would look like up close. Not to say I have seen a Birkin up close (or from afar if I am being honest), however, this is what I assume it would look like. Upon rendering this image I am happy to report that I am not enticed by th idea of owning a Birkin, as even the color pink does not appeal me to this monstrosity.
 
 **Code Choices:**
 
