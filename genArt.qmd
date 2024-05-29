@@ -116,31 +116,10 @@ polar_styled_plot(data = dat, palette = pal) +
 -   The first thing I changed was adding an alpha value, that would change the transparency of the points and other elements. I let that be determined randomly as well, to make it easier to add dimension without having to specify too much.
 -   Then, I uncreased the number of points, and added the lines and stars by mutating the second data set such that the points would lie outside my polarized point graph. The `pch` argument for `geom_point` allowed me to change the points to stars at the end of the
 
-## Title Art 2 - c**ompletely generative**
+## Barbie Birkin - c**ompletely generative**
 
 ```{r}
 library(voronoise)
-```
-
-```{r}
-set.seed(45)
-dat <- tibble(
-  x = runif(500),
-  y = runif(500),
-  val = runif(500)
-)
-pic <- ggplot(dat, aes(x, y, fill = val)) +
-  theme_void() + 
-  coord_equal(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) + 
-  scale_fill_gradientn(colours = palette) + 
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
-  geom_voronoi_tile(colour = "gray31", size = .2, show.legend = FALSE) +
-  geom_point(aes(colour = val), size = runif(500, 2, 6), alpha = 0.6) + 
-  geom_segment(aes(x = x, xend = x + rnorm(500, 0, 0.1), y = y, yend = y + rnorm(500, 0, 0.1)), alpha = 0.3, color = "pink3")
-
-# Display the plot
-pic
 ```
 
 ```{r}
@@ -193,7 +172,7 @@ set.seed(22)
 dat <- unboxy(iterations = 1000, layers = 5) 
 ```
 
-```{r}
+```{r, message = FALSE}
 noise <- long_grid(
   seq(-2.5, 2.5, length.out = 500),
   seq(-2.5, 2.5, length.out = 500)
@@ -206,7 +185,6 @@ noise_df <- as.data.frame(noise)
 pic <- ggplot(dat, aes(x, y, fill = val)) +
   theme_void() + 
   coord_equal(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) + 
-  scale_fill_gradientn(colours = sample_canva2(91)) + 
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0))
 
@@ -226,4 +204,4 @@ final_plot
 
 **Code Choices:**
 
--   A description of the code choices and how they influenced the appearance of the piece.  For example, you might say, "By setting the number of recursions to 100, we repeat the pattern 100 times in the space of the image."
+-   Outside of choosing colors, I combined two packages to create a sort of tiled texture design. I first used the ambient package to create that noise and diffused color look that I overlayed with tiles that I got from the voronoise package. I played around wiht the number of tiles, and the length of the noise until iIgot a pattern that was stark and interesting enough to capture my vision: 500 data points.
