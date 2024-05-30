@@ -4,11 +4,18 @@ author: "Aditi Gajjar"
 format: html
 editor: visual
 embed-resources: true
+execute:
+  echo: false
+  message: false
 ---
 
-## Bloom - ordinary plotting functions
+## **Bloom - ordinary plotting functions**
 
 ```{r}
+#| label: imports
+#| message: false
+#| warning: false
+
 library(ggplot2)
 library(tibble)
 library(viridis)
@@ -18,6 +25,8 @@ library(ambient)
 ```
 
 ```{r}
+#| label: sample-data1
+
 sample_data <- function(seed = NULL, n = 100){
   if(!is.null(seed)) set.seed(seed)
   dat <- tibble(
@@ -34,6 +43,7 @@ sample_data <- function(seed = NULL, n = 100){
 ```
 
 ```{r}
+#| label: pallette
 sample_canva <- function(seed = NULL) {
   if(!is.null(seed)) set.seed(seed)
   sample(ggthemes::canva_palettes, 1)[[1]]
@@ -42,6 +52,7 @@ sample_canva <- function(seed = NULL) {
 ```
 
 ```{r}
+#| label: plot-creation-function
 polar_styled_plot <- function(data = NULL, palette) {
   ggplot(
     data = data,
@@ -80,6 +91,7 @@ polar_styled_plot <- function(data = NULL, palette) {
 ```
 
 ```{r, warning=FALSE}
+#| label: create-visual-1
 dat <- sample_data(n = 3040, seed = 223)
 dat2 <- sample_data(n = 75, seed = 223) |>  
   mutate(y0 = 1.2 + y0 * 1.1, y1 = .2)
@@ -116,13 +128,15 @@ polar_styled_plot(data = dat, palette = pal) +
 -   The first thing I changed was adding an alpha value, that would change the transparency of the points and other elements. I let that be determined randomly as well, to make it easier to add dimension without having to specify too much.
 -   Then, I uncreased the number of points, and added the lines and stars by mutating the second data set such that the points would lie outside my polarized point graph. The `pch` argument for `geom_point` allowed me to change the points to stars at the end of the
 
-## Barbie Birkin - c**ompletely generative**
+## **Barbie Birkin - completely generative**
 
 ```{r}
+#| label: imports2
 library(voronoise)
 ```
 
 ```{r}
+#| label: helper-functions2
 unboxy <- function(iterations, layers) {
   
   coeffs <- array(
@@ -167,12 +181,13 @@ sample_canva2 <- function(seed = NULL, n = 4) {
 ```
 
 ```{r}
-
+#| label: data
 set.seed(22)
 dat <- unboxy(iterations = 1000, layers = 5) 
 ```
 
 ```{r, message = FALSE}
+#| label: visual-2
 noise <- long_grid(
   seq(-2.5, 2.5, length.out = 500),
   seq(-2.5, 2.5, length.out = 500)
@@ -196,7 +211,7 @@ final_plot <- pic +
     show.legend = FALSE
   ) +
   geom_raster(data = noise_df, aes(x, y, fill = noise), alpha = 0.7, inherit.aes = FALSE) +
-  scale_fill_gradient(low = "maroon4", high = "lightpink", guide = "none")
+  scale_fill_gradient(low = "maroon4", high = "white", guide = "none")
 final_plot
 ```
 
